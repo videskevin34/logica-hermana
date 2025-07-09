@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Razonamiento Abstracto - 30 Preguntas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style id="theme-style">
+    :root {
+      --bg-color: #f9f9f9;
+      --text-color: #222;
+      --accent-color: #007BFF;
+      --card-color: #ffffff;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 750px;
+      margin: auto;
+      background-color: var(--card-color);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 12px;
+      font-size: 16px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .options button:hover {
+      background-color: #0056b3;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .timer {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .theme-selector {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .theme-selector button {
+      margin: 0 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+
+      .question {
+        font-size: 18px;
+      }
+
+      .options button {
+        font-size: 15px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Razonamiento Abstracto</h1>
+    <div class="timer" id="timer">Tiempo: 30s</div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <button onclick="nextQuestion()">Siguiente</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="theme-selector">
+      <p>Elegir estilo:</p>
+      <button onclick="setTheme(0)">Azul Profesional</button>
+      <button onclick="setTheme(1)">Color Vivo</button>
+      <button onclick="setTheme(2)">Modo Oscuro</button>
+    </div>
+  </div>
+
+  <script>
+    const temas = [
+      { bg: "#f9f9f9", text: "#222", accent: "#007BFF", card: "#ffffff" },
+      { bg: "#fff8f0", text: "#333", accent: "#e67e22", card: "#fff" },
+      { bg: "#121212", text: "#f4f4f4", accent: "#bb86fc", card: "#1e1e1e" }
+    ];
+
+    function setTheme(index) {
+      const root = document.documentElement.style;
+      const t = temas[index];
+      root.setProperty("--bg-color", t.bg);
+      root.setProperty("--text-color", t.text);
+      root.setProperty("--accent-color", t.accent);
+      root.setProperty("--card-color", t.card);
+    }
+
+    const preguntas = [
+      {
+        texto: "¿Qué figura continúa la secuencia? ◯ ◯ ◯ □ □ □ ◯ ◯ ?",
+        opciones: ["◯", "□", "△", "◻️"],
+        correcta: 1,
+        explicacion: "Se repite un patrón de 3 círculos y 3 cuadrados. Ya hay 2 círculos, falta un cuadrado."
+      },
+      {
+        texto: "¿Cuál figura rompe el patrón? ⬛ ⬛ ⬜ ⬛ ⬛ ⬜ ⬛ ⬜ ⬛",
+        opciones: ["El tercero", "El sexto", "El octavo", "El noveno"],
+        correcta: 3,
+        explicacion: "El patrón es 2 negros y 1 blanco. El noveno rompe esa secuencia."
+      },
+      {
+        texto: "Elige la figura que completa la serie: ▲ ▼ ▲ ▼ ▲ ?",
+        opciones: ["▲", "▼", "◯", "◼"],
+        correcta: 1,
+        explicacion: "Se alternan ▲ y ▼, así que sigue ▼."
+      },
+      {
+        texto: "¿Cuál figura falta? ◯ ◯ □ □ ◯ ◯ □ ?",
+        opciones: ["◯", "□", "△", "◼"],
+        correcta: 1,
+        explicacion: "Patrón: dos círculos, dos cuadrados. Se repite. Sigue un cuadrado."
+      },
+      {
+        texto: "Completa: ▲ △ ▲ △ ▲ ?",
+        opciones: ["△", "▲", "◯", "◻️"],
+        correcta: 0,
+        explicacion: "Alternancia directa entre ▲ y △. Sigue △."
+      }
+    ];
+
+    let index = 0;
+    let tiempo = 30;
+    let intervalo;
+
+    function leerTexto(texto) {
+      const mensaje = new SpeechSynthesisUtterance(texto);
+      mensaje.lang = "es-ES";
+      speechSynthesis.speak(mensaje);
+    }
+
+    function renderPregunta() {
+      clearInterval(intervalo);
+      tiempo = 30;
+      document.getElementById("timer").textContent = `Tiempo: ${tiempo}s`;
+      intervalo = setInterval(() => {
+        tiempo--;
+        document.getElementById("timer").textContent = `Tiempo: ${tiempo}s`;
+        if (tiempo === 0) {
+          clearInterval(intervalo);
+          mostrarExplicacion(false);
+        }
+      }, 1000);
+
+      const p = preguntas[index];
+      document.getElementById("questionText").innerText = `Pregunta ${index + 1}: ${p.texto}`;
+      const cont = document.getElementById("optionsContainer");
+      cont.innerHTML = "";
+      p.opciones.forEach((op, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = op;
+        btn.onclick = () => checkRespuesta(i);
+        cont.appendChild(btn);
+      });
+      document.getElementById("feedback").innerText = "";
+    }
+
+    function checkRespuesta(sel) {
+      clearInterval(intervalo);
+      mostrarExplicacion(sel === preguntas[index].correcta);
+    }
+
+    function mostrarExplicacion(esCorrecta) {
+      const p = preguntas[index];
+      const feedback = document.getElementById("feedback");
+      if (esCorrecta) {
+        feedback.textContent = "✅ ¡Correcto!";
+        feedback.style.color = "green";
+      } else {
+        feedback.textContent = `❌ Incorrecto. Respuesta correcta: "${p.opciones[p.correcta]}".
+Explicación: ${p.explicacion}`;
+        feedback.style.color = "red";
+        leerTexto("Respuesta incorrecta. " + p.explicacion);
+      }
+    }
+
+    function nextQuestion() {
+      if (index < preguntas.length - 1) {
+        index++;
+        renderPregunta();
+      } else {
+        document.getElementById("questionText").innerHTML = "🎉 ¡Has terminado!";
+        document.getElementById("optionsContainer").innerHTML = "";
+        document.getElementById("feedback").innerText = "";
+        document.getElementById("timer").style.display = "none";
+      }
+    }
+
+    setTheme(0);
+    renderPregunta();
+  </script>
+</body>
+</html>
